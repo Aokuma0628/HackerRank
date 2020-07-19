@@ -6,7 +6,7 @@
 #define NG -1
 
 typedef struct _read_alloc {
-  void *mem;
+  char *line;
   struct _read_alloc *next;
 } READ_ALLOC;
 
@@ -18,29 +18,36 @@ typedef struct _node {
 } NODE;
 
 READ_ALLOC *g_read_list = NULL;
+READ_ALLOC *g_read_last  = NULL;
 NODE       *g_root = NULL;
 
 
-int insert_node(NODE *node);
+int   insert_node(NODE *node);
 NODE *serch_node(void *key);
-void free_node();
+void  free_node(NODE *node);
 char *readline();
+int   add_read_alloc(char *line);
 void  free_read_list();
+int   add_read_list(char *line);
 
 int main()
 {
-    char *endptr;
+    char *err;
     char *str = readline();
-    int val = strtol(str, &endptr, 10);
+    int   val = strtol(str, &err, 10);
 
-    if (*endptr != '\0') {
+    if (*err != '\0') {
       exit(EXIT_FAILURE);
     }
 
     (void)val;
 
+    free_read_list();
+
     return 0;
 }
+
+
 
 NODE *serch_node(
   char *key
@@ -132,8 +139,6 @@ char *readline(
   size_t alloc_length = 1024;
   size_t data_length  = 0;
   char  *data         = (char *)malloc(alloc_length);
-  READ_ALLOC *alloc = NULL;
-  READ_ALLOC *list = g_read_list;
 
   while (1) {
     char *cursor = data + data_length;
@@ -163,18 +168,39 @@ char *readline(
   }
 
   data = (char *)realloc(data, data_length);
+  if (add_read_alloc(data) != OK) {
+    return NULL;
+  }
+
+  return data;
+}
+
+
+int add_read_alloc (
+  char *line
+)
+{
+  int ret = NG;
+  READ_ALLOC *alloc = NULL;
+  READ_ALLOC *last  = g_read_last;
 
   alloc = (READ_ALLOC*)calloc(1, sizeof(READ_ALLOC));
   if (!alloc) {
-    return NULL;
+    return ret;
   }
-  alloc->mem = data;
-  while(list) {
-    list = list->next;
-  }
-  list = alloc;
+  alloc->line = line;
 
-  return data;
+  if (!g_read_list) {
+    g_read_list = alloc;
+    g_read_last  = alloc;
+  }
+  else {
+    last->next = alloc;
+    g_read_last = last->next;
+  }
+
+  ret = OK;
+  return ret;
 }
 
 void read_free_list() {
@@ -183,6 +209,7 @@ void read_free_list() {
 
   while(list) {
     tmp = list->next;
+    free(list->line);
     free(list);
     list = tmp;
   }
