@@ -23,7 +23,7 @@ NODE       *g_root = NULL;
 
 
 int   insert_node(NODE *node);
-NODE *serch_node(void *key);
+NODE *serch_node(char *key);
 void  free_node(NODE *node);
 char *readline();
 int   add_read_alloc(char *line);
@@ -128,7 +128,7 @@ void free_node (
   free(node);
   return ;
 
-  }
+}
 
 
 
@@ -203,7 +203,7 @@ int add_read_alloc (
   return ret;
 }
 
-void read_free_list() {
+void free_read_list() {
   READ_ALLOC *list = g_read_list;
   READ_ALLOC *tmp  = NULL;
 

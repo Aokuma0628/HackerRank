@@ -12,7 +12,7 @@ typedef struct _read_alloc {
 
 typedef struct _node {
   char *key;
-  void *data;
+  int   data;
   struct _node *left;
   struct _node *right;
 } NODE;
@@ -24,7 +24,7 @@ NODE       *g_root = NULL;
 
 
 int   insert_node(NODE *node);
-NODE *search_node(void *key);
+NODE *search_node(char *key);
 void  free_node(NODE *node);
 char *readline();
 int   add_read_alloc(char *line);
@@ -33,6 +33,7 @@ int   add_read_list(char *line);
 
 int get_name_phone(int line_num);
 int search_phone(int line_num);
+
 
 int search_phone(
   int line_num
@@ -53,7 +54,7 @@ int search_phone(
     node = search_node(name);
 
     if (node) {
-      printf("%s=%d\n", name, (int)node->data);
+      printf("%s=%d\n", name, node->data);
     }
     else {
       printf("Not found\n");
@@ -92,11 +93,11 @@ int get_name_phone(
     *num_p = '\0';
 
     name_phone = (NODE*)calloc(1, sizeof(NODE));
-    if (!name_NODE) {
+    if (!name_phone) {
       goto l_exit;
     }
-    name_phone->name   = line;
-    name_phone->number = strtol(++num_p, &err, 10);
+    name_phone->key   = line;
+    name_phone->data = strtol(++num_p, &err, 10);
     if (*err != '\0') {
       goto l_exit;
     }
@@ -111,12 +112,10 @@ l_exit:
 
 int main()
 {
-    char   *err = NULL;
+    char   *err          = NULL;
     int     line_num     = 0;
     char   *line_num_str = NULL;
-    int     i    = 0;
-    int     j    = 0;
-    int     ret  = NG;
+    int     ret          = NG;
 
     line_num_str = readline();
     if (!line_num_str) {
@@ -132,52 +131,18 @@ int main()
       goto l_exit;
     }
 
-    for (; i < line_num; i++) {
-      char *line  = NULL;
-      char *num_p = NULL;
-      char *err   = NULL;
-      NODE  *name_phne = NULL;
-      NODE  *tmp        = list;
-      NODE  *bf         = NULL;
-
-
-
-    for (; j < line_num; j++) {
-      char  *s_name = NULL;
-      NODE *tmp2   = list;
-      int    result = 0;
-      s_name = readline();
-      if (!s_name) {
-        goto l_exit;
-      }
-
-      while (tmp2) {
-        result = strcmp(s_name, tmp2->name);
-        if (result == 0) {
-          printf("%s=%d\n", s_name, tmp2->number);
-          break;
-        }
-        else if (result < 0) {
-          tmp2 = tmp2->left;
-        }
-        else {
-          tmp2 = tmp2->right;
-        }
-      }
-
-      if (!tmp2) {
-        printf("Not found\n");
-      }
+    if (search_phone(line_num) != OK) {
+      goto l_exit;
     }
+
     ret = OK;
 
   l_exit:
     if (ret != OK) {
       printf("ret=NG\n");
     }
-    free_list();
-
-
+    free_node(NULL);
+    free_read_list();
 
     return 0;
 }
@@ -203,7 +168,6 @@ NODE *search_node(
       pos = pos->right;
     }
   }
-
   return NULL;
 }
 
@@ -211,7 +175,7 @@ int insert_node(
   NODE *node
 )
 {
-  NODE *pos = g_root;
+  NODE *pos  = g_root;
   NODE *pre  = NULL;
 
   if (!node) {
@@ -262,8 +226,7 @@ void free_node (
 
   free(node);
   return ;
-
-  }
+}
 
 
 
@@ -326,11 +289,11 @@ int add_read_alloc (
   alloc->line = line;
 
   if (!g_read_list) {
-    g_read_list = alloc;
+    g_read_list  = alloc;
     g_read_last  = alloc;
   }
   else {
-    last->next = alloc;
+    last->next  = alloc;
     g_read_last = last->next;
   }
 
@@ -338,7 +301,7 @@ int add_read_alloc (
   return ret;
 }
 
-void read_free_list() {
+void free_read_list() {
   READ_ALLOC *list = g_read_list;
   READ_ALLOC *tmp  = NULL;
 
