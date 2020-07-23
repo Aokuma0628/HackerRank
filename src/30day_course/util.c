@@ -5,13 +5,19 @@
 #define OK  1
 #define NG -1
 
-/*string data from stdin*/
+/**
+ * @struct READ_ALLOC
+ * @brief  list of string read from stdin
+ */
 typedef struct _read_alloc {
   char *line;
   struct _read_alloc *next;
 } READ_ALLOC;
 
-/*node*/
+/**
+ * @struct NODE
+ * @brief  node for binary tree
+ */
 typedef struct _node {
   char *key;
   void *data;
