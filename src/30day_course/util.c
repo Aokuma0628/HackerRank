@@ -5,11 +5,13 @@
 #define OK  1
 #define NG -1
 
+/*string data from stdin*/
 typedef struct _read_alloc {
   char *line;
   struct _read_alloc *next;
 } READ_ALLOC;
 
+/*node*/
 typedef struct _node {
   char *key;
   void *data;
@@ -17,38 +19,27 @@ typedef struct _node {
   struct _node *right;
 } NODE;
 
-READ_ALLOC *g_read_list = NULL;
-READ_ALLOC *g_read_last  = NULL;
-NODE       *g_root = NULL;
 
+READ_ALLOC *g_read_list = NULL;   //! List pointer to read data
+READ_ALLOC *g_read_last  = NULL;  //! end of list
+NODE       *g_root = NULL;        //! root of node
 
-int   insert_node(NODE *node);
-NODE *serch_node(char *key);
-void  free_node(NODE *node);
+/*read from stdin */
 char *readline();
 int   add_read_alloc(char *line);
 void  free_read_list();
-int   add_read_list(char *line);
 
-int main()
-{
-    char *err;
-    char *str = readline();
-    int   val = strtol(str, &err, 10);
-
-    if (*err != '\0') {
-      exit(EXIT_FAILURE);
-    }
-
-    (void)val;
-
-    free_read_list();
-
-    return 0;
-}
+/*node function*/
+int   insert_node(NODE *node);
+NODE *serch_node(char *key);
+void  free_node(NODE *node);
 
 
-
+/**
+* @brief      serch node
+* @param[in]  key : key for serching node
+* @return     NODE* : if found by key, the node pointer
+*/
 NODE *serch_node(
   char *key
 )
@@ -72,6 +63,11 @@ NODE *serch_node(
   return NULL;
 }
 
+/**
+* @brief      insert a node into tree
+* @param[in]  *node : node to be inserted
+* @return     int : insertion result
+*/
 int insert_node(
   NODE *node
 )
@@ -106,6 +102,11 @@ int insert_node(
   return OK;
 }
 
+/**
+* @brief      free node's memory
+* @param[in]  *node : if node is NULL, free all node
+* @return     void
+*/
 void free_node (
   NODE *node
 )
@@ -131,7 +132,11 @@ void free_node (
 }
 
 
-
+/**
+* @brief      read string from stdin
+* @param[in]  void
+* @return     char* : one-line string
+*/
 char *readline(
   void
 )
@@ -176,6 +181,11 @@ char *readline(
 }
 
 
+/**
+* @brief      add read list
+* @param[in]  line : string from stdin
+* @return     int : add result
+*/
 int add_read_alloc (
   char *line
 )
@@ -203,6 +213,12 @@ int add_read_alloc (
   return ret;
 }
 
+
+/**
+* @brief      free read list
+* @param[in]  void
+* @return     void
+*/
 void free_read_list() {
   READ_ALLOC *list = g_read_list;
   READ_ALLOC *tmp  = NULL;
@@ -217,7 +233,15 @@ void free_read_list() {
   return ;
 }
 
-char **split_string(char* str) {
+/**
+* @brief      split string by one space
+* @param[in]  str : string include spaces
+* @return     char** : array of string after spliting
+*/
+char **split_string(
+  char* str
+)
+{
   char **splits = NULL;
   char  *token  = strtok(str, " ");
   int    spaces = 0;
@@ -233,4 +257,26 @@ char **split_string(char* str) {
   }
 
   return splits;
+}
+
+/**
+* @brief      main function
+* @param[in]  void
+* @return     int : 0
+*/
+int main()
+{
+    char *err = NULL;
+    char *str = readline();
+    int   val = strtol(str, &err, 10);
+
+    if (*err != '\0') {
+      goto l_end;
+    }
+
+    (void)val;
+
+l_end:
+    free_read_list();
+    return 0;
 }
