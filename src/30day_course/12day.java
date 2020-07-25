@@ -35,12 +35,12 @@ class Student extends Person{
     */
     public Student(
       String firstName,
-      String LastName,
+      String lastName,
       int    id,
       int[]  scores
     )
     {
-      super(firstName, LastName, id);
+      super(firstName, lastName, id);
       this.testScores = scores;
     }
 
