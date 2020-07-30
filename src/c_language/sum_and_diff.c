@@ -127,7 +127,12 @@ void free_read_list() {
   return ;
 }
 
-
+/**
+* @brief      split integer by a space
+* @param[in]  str split target
+* @param[out] val[INPUT_NUM] separated numbers are stored
+* @return     int split result
+*/
 int split_integer(
   char *str,
   int   val[INPUT_NUM]
@@ -150,31 +155,57 @@ int split_integer(
       return NG;
     }
     val[i] = tmp_val;
-    tmp_str++;
+    tmp_str = space++;
   }
 
   tmp_val = strtol(tmp_str, &err, 10);
-  if (*err != '\0') {
+  if (*err != '\0' && *err != '\n') {
     return NG;
   }
-  val[INPUT_NUM] = tmp_val;
+  val[INPUT_NUM - 1] = tmp_val;
 
   return OK;
 }
 
+
+/**
+* @brief      split float by a space
+* @param[in]  str split target
+* @param[out] val[INPUT_NUM] separated numbers are stored
+* @return     int split result
+*/
 int split_float(
   char *str,
   float val[INPUT_NUM]
 )
 {
-  int ret = NG;
+  float tmp_val = 0;
+  int   i       = 0;
+  char *tmp_str = str;
+  char *err     = NULL;
 
   if (!str || !val) {
-
+    return NG;
   }
 
+  for (; i < INPUT_NUM - 1; i++) {
+    char *space = NULL;
 
-  return ret;
+    tmp_val = strtold(tmp_str, &space);
+    if (*space != ' ') {
+      return NG;
+    }
+    val[i] = tmp_val;
+    tmp_str = space++;
+  }
+
+  tmp_val = strtod(tmp_str, &err);
+  if (*err != '\0' && *err != '\n') {
+    return NG;
+  }
+  val[INPUT_NUM - 1] = tmp_val;
+
+  return OK;
 }
 
 
