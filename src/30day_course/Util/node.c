@@ -24,6 +24,27 @@ NODE *serch_node(char *key);
 void  free_node(NODE *node);
 
 
+
+/**
+* @brief      get NODE height
+* @param[in]  root  : root of NODE
+* @return     int   : height of NODE 
+*/
+int getHeight(
+  NODE *root
+)
+{
+  if (!root) {
+    return -1;
+  }
+
+  int rightDepth  = getHeight(root->right);
+  int leftDepth   = getHeight(root->left);
+
+  return (rightDepth > leftDepth ? rightDepth : leftDepth) + 1;
+}
+
+
 /**
 * @brief      serch node
 * @param[in]  key : key for serching node
