@@ -14,38 +14,16 @@ Node* newNode(int data){
     return node;
 }
 
-int countHeight(
-  Node *node
-)
-{
-  if (node->right) {
-    return (countHeight(node->right) + 1);
-  }
-  if (node->left) {
-    cnt++;
-    return (cnt + countHeight(node->left, cnt));
-  }
-  return 0;
-}
 
 int getHeight(Node* root){
-  const int init = 0;
-
   if (!root) {
     return -1;
   }
 
-  int height = countHeight(root, init);
-  int height_l = countHeight(root->left, init);
+  int rightDepth  = getHeight(root->right);
+  int leftDepth   = getHeight(root->left);
 
-  if (height > height_l) {
-    return height;
-  }
-  else {
-    return height_l;
-  }
-
-  return 1;
+  return (rightDepth > leftDepth ? rightDepth : leftDepth) + 1;
 }
 
 Node* insert(Node* root,int data){
