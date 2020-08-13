@@ -50,7 +50,7 @@ int split_str2str(
 /**
 * @brief      split string by in_delimiter to integer
 * @param[in]  str : split target
-* @param[in]  num : number of delimiter
+* @param[in]  num : number of string
 * @param[in]  del : delimiter character
 * @param[out] split : integer array after spliting
 * @return     int : split result
