@@ -9,7 +9,7 @@
 /**
 * @brief      split string by in_delimiter to string
 * @param[in]  str : split target
-* @param[in]  num : number of delimiter
+* @param[in]  num : number of string
 * @param[in]  del : delimiter character
 * @param[out] split : string array after spliting
 * @return     int : split result
