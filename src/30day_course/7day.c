@@ -1,55 +1,37 @@
-#include <assert.h>
-#include <limits.h>
-#include <math.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-char* readline();
-char** split_string(char*);
+#define OK  1
+#define NG -1
+
+/**
+ * @struct READ_ALLOC
+ * @brief  list of string read from stdin
+ */
+typedef struct _read_alloc {
+  char *line;
+  struct _read_alloc *next;
+} READ_ALLOC;
+
+READ_ALLOC *g_read_list = NULL;   //! List pointer to read data
+READ_ALLOC *g_read_last  = NULL;  //! end of list
+
+/*read from stdin */
+char *readline();
+int   add_read_alloc(char *line);
+void  free_read_list();
 
 
-
-int main() {
-  char* n_endptr = NULL;
-  char* n_str = readline();
-  int n = strtol(n_str, &n_endptr, 10);
-
-  if (*n_endptr != '\0') {
-    exit(EXIT_FAILURE);
-  }
-
-  char **arr_temp = split_string(readline());
-
-  int *arr = (int*)malloc(n * sizeof(int));
-  memset(arr, 0, n * sizeof(int));
-
-  for (int i = 0; i < n; i++) {
-    char *arr_item_endptr = NULL;
-    char* arr_item_str = *(arr_temp + i);
-    int arr_item = strtol(arr_item_str, &arr_item_endptr, 10);
-
-    if (*arr_item_endptr != '\0') {
-      exit(EXIT_FAILURE);
-    }
-
-    *(arr + i) = arr_item;
-  }
-
-  while (n > 0) {
-    printf("%d ", *(arr + n - 1));
-    n--;
-  }
-
-  printf("\n");
-
-  return 0;
-}
-
-char *readline() {
+/**
+* @brief      read string from stdin
+* @param[in]  void
+* @return     char* : one-line string
+*/
+char *readline(
+  void
+)
+{
   size_t alloc_length = 1024;
   size_t data_length  = 0;
   char  *data         = (char *)malloc(alloc_length);
@@ -82,24 +64,135 @@ char *readline() {
   }
 
   data = (char *)realloc(data, data_length);
+  if (add_read_alloc(data) != OK) {
+    return NULL;
+  }
 
   return data;
 }
 
-char **split_string(char* str) {
-  char **splits = NULL;
-  char  *token  = strtok(str, " ");
-  int    spaces = 0;
 
-  while (token) {
-    splits = (char **)realloc(splits, sizeof(char*) * ++spaces);
-    if (!splits) {
-      return splits;
-    }
+/**
+* @brief      add read list
+* @param[in]  line : string from stdin
+* @return     int : add result
+*/
+int add_read_alloc (
+  char *line
+)
+{
+  int ret = NG;
+  READ_ALLOC *alloc = NULL;
+  READ_ALLOC *last  = g_read_last;
 
-    splits[spaces - 1] = token;
-    token = strtok(NULL, " ");
+  alloc = (READ_ALLOC*)calloc(1, sizeof(READ_ALLOC));
+  if (!alloc) {
+    return ret;
+  }
+  alloc->line = line;
+
+  if (!g_read_list) {
+    g_read_list = alloc;
+    g_read_last  = alloc;
+  }
+  else {
+    last->next = alloc;
+    g_read_last = last->next;
   }
 
-  return splits;
+  ret = OK;
+  return ret;
+}
+
+
+/**
+* @brief      free read list
+* @param[in]  void
+* @return     void
+*/
+void free_read_list() {
+  READ_ALLOC *list = g_read_list;
+  READ_ALLOC *tmp  = NULL;
+
+  while(list) {
+    tmp = list->next;
+    free(list->line);
+    free(list);
+    list = tmp;
+  }
+
+  return ;
+}
+
+
+/**
+* @brief      split string by in_delimiter to integer
+* @param[in]  str : split target
+* @param[in]  num : number of string
+* @param[in]  del : delimiter character
+* @param[out] split : integer array after spliting
+* @return     int : split result
+*/
+int split_str2int(
+  char   *str,
+  int     num,
+  char    del,
+  int    *split
+)
+{
+  int   i   = 0;
+  char *tmp = str;
+  char *end = NULL;
+
+  if (!str || !split) {
+    return NG;
+  }
+
+  while(1) {
+    int val = strtol(tmp, &end, 10);
+    if ((*end != del) && (*end != '\0')) {
+      return NG;
+    }
+    split[i] = val;
+
+    i++;
+    if(*end == '\0' || i >= num) {
+      break;
+    }
+
+    tmp = end;
+    tmp++;
+    end = NULL;
+  }
+
+  return OK;
+}
+
+
+int main () {
+  char *err     = NULL;
+  char *num_str = readline();
+  int   num = strtol(num_str, &err, 10);
+  int   i   = 0;
+
+  if (*err != '\0') {
+    return 0;
+  }
+
+  int *input = (int*)malloc(sizeof(int) * num);
+  if (!input) {
+    return 0;
+  }
+  char *str = readline();
+  if (split_str2int(str, num, ' ', input) != OK) {
+    return 0;
+  }
+
+  for (; i < num; i++) {
+    printf("%d ", input[num - i - 1]);
+  }
+
+  free_read_list();
+
+  return 0;
 }
