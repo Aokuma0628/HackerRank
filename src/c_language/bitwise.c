@@ -18,11 +18,37 @@ typedef struct _read_alloc {
 READ_ALLOC *g_read_list = NULL;   //! List pointer to read data
 READ_ALLOC *g_read_last  = NULL;  //! end of list
 
-/*read from stdin */
-char *readline();
-int   add_read_alloc(char *line);
-void  free_read_list();
+/**
+* @brief      add read list
+* @param[in]  line : string from stdin
+* @return     int : add result
+*/
+int add_read_alloc (
+  char *line
+)
+{
+  int ret = NG;
+  READ_ALLOC *alloc = NULL;
+  READ_ALLOC *last  = g_read_last;
 
+  alloc = (READ_ALLOC*)calloc(1, sizeof(READ_ALLOC));
+  if (!alloc) {
+    return ret;
+  }
+  alloc->line = line;
+
+  if (!g_read_list) {
+    g_read_list = alloc;
+    g_read_last  = alloc;
+  }
+  else {
+    last->next = alloc;
+    g_read_last = last->next;
+  }
+
+  ret = OK;
+  return ret;
+}
 
 /**
 * @brief      read string from stdin
@@ -74,39 +100,6 @@ char *readline(
 
 
 /**
-* @brief      add read list
-* @param[in]  line : string from stdin
-* @return     int : add result
-*/
-int add_read_alloc (
-  char *line
-)
-{
-  int ret = NG;
-  READ_ALLOC *alloc = NULL;
-  READ_ALLOC *last  = g_read_last;
-
-  alloc = (READ_ALLOC*)calloc(1, sizeof(READ_ALLOC));
-  if (!alloc) {
-    return ret;
-  }
-  alloc->line = line;
-
-  if (!g_read_list) {
-    g_read_list = alloc;
-    g_read_last  = alloc;
-  }
-  else {
-    last->next = alloc;
-    g_read_last = last->next;
-  }
-
-  ret = OK;
-  return ret;
-}
-
-
-/**
 * @brief      free read list
 * @param[in]  void
 * @return     void
@@ -126,16 +119,109 @@ void free_read_list() {
 }
 
 
+/**
+* @brief      split string by in_delimiter to integer
+* @param[in]  str : split target
+* @param[in]  num : number of string
+* @param[in]  del : delimiter character
+* @param[out] split : integer array after spliting
+* @return     int : split result
+*/
+int split_str2int(
+  char   *str,
+  int     num,
+  char    del,
+  int    *split
+)
+{
+  int   i   = 0;
+  char *tmp = str;
+  char *end = NULL;
 
-void calculate_the_maximum(int n, int k) {
-  //Write your code here.
+  if (!str || !split) {
+    return NG;
+  }
+
+  while(1) {
+    int val = strtol(tmp, &end, 10);
+    if ((*end != del) && (*end != '\0')) {
+      return NG;
+    }
+    split[i] = val;
+
+    i++;
+    if(*end == '\0' || i >= num) {
+      break;
+    }
+
+    tmp = end;
+    tmp++;
+    end = NULL;
+  }
+
+  return OK;
+}
+
+/**
+* @brief      Calculate the max bitwise operation(&, |, ^)
+* @param[in]  n : Number of repetitions
+* @param[in]  k : The max number
+* @return     void
+*/
+void calculate_the_maximum(
+  int n,
+  int k
+)
+{
+  int i = 0;
+  int j = 0;
+  int max_and = 0;
+  int max_or  = 0;
+  int max_xor = 0;
+
+  for (i = 1; i < n; i++) {
+    for (j = i + 1; j <= n; j++) {
+      int tmp_and = 0;
+      int tmp_or  = 0;
+      int tmp_xor = 0;
+
+      tmp_and = i & j;
+      tmp_or  = i | j;
+      tmp_xor = i ^ j;
+
+      if (max_and < tmp_and && tmp_and < k) {
+        max_and = tmp_and;
+      }
+      if (max_or < tmp_or && tmp_or < k) {
+        max_or = tmp_or;
+      }
+      if (max_xor < tmp_xor && tmp_xor < k) {
+        max_xor = tmp_xor;
+      }
+    }
+  }
+  printf("%d\n%d\n%d\n", max_and, max_or, max_xor);
+
+  return ;
 }
 
 int main() {
-    int n, k;
+    char *err = NULL;
+    char *n_str = readline();
+    char *k_str = readline();
 
-    scanf("%d %d", &n, &k);
+    int n = strtol(n_str, &err, 10);
+    if (*err != '\0') {
+      return -1;
+    }
+    int k = strtol(k_str, &err, 10);
+    if (*err != '\0') {
+      return -1;
+    }
+
     calculate_the_maximum(n, k);
+
+    free_read_list();
 
     return 0;
 }
